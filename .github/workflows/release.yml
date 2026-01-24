@@ -87,7 +87,7 @@ jobs:
             ${{ runner.os }}-go-
 
       - name: Install dependencies
-        run: brew install pkg-config sdl2
+        run: brew install sdl2
 
       - name: Install Go dependencies
         run: go get -v
@@ -222,3 +222,4 @@ jobs:
             linux/AxolotlCli-linux
             macos/Axolotl.MacOS.zip
             windows/Axolotl*.exe
+
