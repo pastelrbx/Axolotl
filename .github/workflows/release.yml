@@ -107,36 +107,7 @@ jobs:
           mv Axolotl Axolotl.app/Contents/MacOS/Axolotl
           cp macos/icon.icns Axolotl.app/Contents/Resources/icon.icns
 
-      - name: Import signing certificate
-        env:
-          CSC_LINK: ${{ secrets.APPLE_SIGNING_CERT }}
-          CSC_KEY_PASSWORD: ${{ secrets.APPLE_SIGNING_CERT_PASSWORD }}
-        run: |
-          echo "$CSC_LINK" | base64 --decode > certificate.p12
-          security create-keychain -p "" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "" build.keychain
-          security import certificate.p12 -k build.keychain -P "$CSC_KEY_PASSWORD" -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "" build.keychain
-          rm certificate.p12
-
-      - name: Sign the app
-        run: |
-          codesign --force --options runtime --sign "Developer ID Application" Axolotl.app/Contents/MacOS/Axolotl
-          codesign --force --options runtime --sign "Developer ID Application" Axolotl.app
-
-      - name: Notarize the app
-        env:
-          API_KEY: ${{ secrets.APPLE_API_KEY }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
-        run: |
-          echo "$API_KEY" > apple.p8
-          ditto -c -k --keepParent Axolotl.app Axolotl-notarize.zip
-          xcrun notarytool submit Axolotl-notarize.zip --key apple.p8 --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER" --wait
-          xcrun stapler staple Axolotl.app
-          rm apple.p8 Axolotl-notarize.zip
-
+      # No Apple signing / notarization (Gatekeeper warnings expected)
       - name: Create final zip
         run: zip -r Axolotl.MacOS.zip Axolotl.app
 
