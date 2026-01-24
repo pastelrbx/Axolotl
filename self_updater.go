@@ -46,15 +46,15 @@ func init() {
 }
 
 func GetInstallerDownloadLink() string {
-	const BaseUrl = "https://github.com/Equicord/Equilotl/releases/latest/download/"
+	const BaseUrl = "https://github.com/pastelrbx/Axolotl/releases/latest/download/"
 	switch runtime.GOOS {
 	case "windows":
-		filename := Ternary(buildinfo.UiType == buildinfo.UiTypeCli, "EquilotlCli.exe", "Equilotl.exe")
+		filename := Ternary(buildinfo.UiType == buildinfo.UiTypeCli, "AxolotlCli.exe", "Axolotl.exe")
 		return BaseUrl + filename
 	case "darwin":
-		return BaseUrl + "Equilotl.MacOS.zip"
+		return BaseUrl + "Axolotl.MacOS.zip"
 	case "linux":
-		return BaseUrl + "EquilotlCli-linux"
+		return BaseUrl + "AxolotlCli-linux"
 	default:
 		return ""
 	}
@@ -90,7 +90,7 @@ func UpdateSelf() error {
 	}
 	defer res.Body.Close()
 
-	tmp, err := os.CreateTemp(ownExeDir, "EquilotlUpdate")
+	tmp, err := os.CreateTemp(ownExeDir, "AxolotlUpdate")
 	if err != nil {
 		return fmt.Errorf("Failed to create tempfile: %w", err)
 	}

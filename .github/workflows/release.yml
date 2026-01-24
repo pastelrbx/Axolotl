@@ -43,22 +43,22 @@ jobs:
         run: go get -v
 
       - name: Build GUI
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Equilotl-x11
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Axolotl-x11
 
       - name: Build CLI
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "cli" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o EquilotlCli-linux
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "cli" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o AxolotlCli-linux
 
       - name: Update executable
         run: |
-          chmod +x Equilotl*
+          chmod +x Axolotl*
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Equilotl-linux
+          name: Axolotl-linux
           path: |
-            Equilotl-x11
-            EquilotlCli-linux
+            Axolotl-x11
+            AxolotlCli-linux
 
   build-mac:
     runs-on: macos-latest
@@ -93,19 +93,19 @@ jobs:
         run: go get -v
 
       - name: Build GUI
-        run: CGO_CFLAGS="-mmacosx-version-min=10.15" CGO_LDFLAGS="-mmacosx-version-min=10.15" CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Equilotl
+        run: CGO_CFLAGS="-mmacosx-version-min=10.15" CGO_LDFLAGS="-mmacosx-version-min=10.15" CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Axolotl
 
       - name: Update executable
         run: |
-          chmod +x Equilotl*
+          chmod +x Axolotl*
 
       - name: Generate MacOS GUI bundle
         run: |
-          mkdir -p Equilotl.app/Contents/MacOS
-          mkdir -p Equilotl.app/Contents/Resources
-          cp macos/Info.plist Equilotl.app/Contents/Info.plist
-          mv Equilotl Equilotl.app/Contents/MacOS/Equilotl
-          cp macos/icon.icns Equilotl.app/Contents/Resources/icon.icns
+          mkdir -p Axolotl.app/Contents/MacOS
+          mkdir -p Axolotl.app/Contents/Resources
+          cp macos/Info.plist Axolotl.app/Contents/Info.plist
+          mv Axolotl Axolotl.app/Contents/MacOS/Axolotl
+          cp macos/icon.icns Axolotl.app/Contents/Resources/icon.icns
 
       - name: Import signing certificate
         env:
@@ -122,8 +122,8 @@ jobs:
 
       - name: Sign the app
         run: |
-          codesign --force --options runtime --sign "Developer ID Application" Equilotl.app/Contents/MacOS/Equilotl
-          codesign --force --options runtime --sign "Developer ID Application" Equilotl.app
+          codesign --force --options runtime --sign "Developer ID Application" Axolotl.app/Contents/MacOS/Axolotl
+          codesign --force --options runtime --sign "Developer ID Application" Axolotl.app
 
       - name: Notarize the app
         env:
@@ -132,20 +132,20 @@ jobs:
           APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
         run: |
           echo "$API_KEY" > apple.p8
-          ditto -c -k --keepParent Equilotl.app Equilotl-notarize.zip
-          xcrun notarytool submit Equilotl-notarize.zip --key apple.p8 --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER" --wait
-          xcrun stapler staple Equilotl.app
-          rm apple.p8 Equilotl-notarize.zip
+          ditto -c -k --keepParent Axolotl.app Axolotl-notarize.zip
+          xcrun notarytool submit Axolotl-notarize.zip --key apple.p8 --key-id "$APPLE_API_KEY_ID" --issuer "$APPLE_API_ISSUER" --wait
+          xcrun stapler staple Axolotl.app
+          rm apple.p8 Axolotl-notarize.zip
 
       - name: Create final zip
-        run: zip -r Equilotl.MacOS.zip Equilotl.app
+        run: zip -r Axolotl.MacOS.zip Axolotl.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Equilotl-macos
+          name: Axolotl-macos
           path: |
-            Equilotl.MacOS.zip
+            Axolotl.MacOS.zip
 
   build-windows:
     runs-on: windows-latest
@@ -192,22 +192,22 @@ jobs:
           export GOROOT=/mingw64/lib/go
           export GOPATH=/mingw64
           go-winres make --product-version "git-tag"
-          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -H=windowsgui -extldflags=-static -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Equilotl.exe
+          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -H=windowsgui -extldflags=-static -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Axolotl.exe
 
       - name: Build CLI
         shell: msys2 {0}
         run: |
           export GOROOT=/mingw64/lib/go
           export GOPATH=/mingw64
-          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "cli" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o EquilotlCli.exe
+          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "cli" -ldflags "-s -w -X 'vencord/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'vencord/buildinfo.InstallerTag=${{ github.ref_name }}'" -o AxolotlCli.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Equilotl-windows
+          name: Axolotl-windows
           path: |
-            Equilotl.exe
-            EquilotlCli.exe
+            Axolotl.exe
+            AxolotlCli.exe
 
   release:
     runs-on: ubuntu-latest
@@ -220,19 +220,19 @@ jobs:
       - name: "Download Linux Artifacts"
         uses: actions/download-artifact@v4
         with:
-          name: Equilotl-linux
+          name: Axolotl-linux
           path: linux
 
       - name: "Download MacOS Artifacts"
         uses: actions/download-artifact@v4
         with:
-          name: Equilotl-macos
+          name: Axolotl-macos
           path: macos
 
       - name: "Download Windows Artifacts"
         uses: actions/download-artifact@v4
         with:
-          name: Equilotl-windows
+          name: Axolotl-windows
           path: windows
 
       - name: Create the release
@@ -245,9 +245,9 @@ jobs:
           prerelease: false
           draft: false
           body: |
-            This is release ${{ github.ref_name }} of Equilotl.
+            This is release ${{ github.ref_name }} of Axolotl.
           files: |
-            linux/Equilotl-x11
-            linux/EquilotlCli-linux
-            macos/Equilotl.MacOS.zip
-            windows/Equilotl*.exe
+            linux/Axolotl-x11
+            linux/AxolotlCli-linux
+            macos/Axolotl.MacOS.zip
+            windows/Axolotl*.exe
