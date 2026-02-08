@@ -1,6 +1,6 @@
 # Axolotl
 
-The Femcord Installer allows you to install [Femcord, the cutest Discord Desktop client mod](https://github.com/pastelrbx/Femcord)
+The Femcord Installer allows you to install [Femcord, the cutest Discord Desktop client mod](https://github.com/Divulgate/Femcord)
 
 ![image](https://i.imgur.com/oHN41ss.png)
 

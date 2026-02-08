@@ -11,7 +11,7 @@ import (
 	"vencord/buildinfo"
 )
 
-const ReleaseUrl = "https://api.github.com/repos/pastelrbx/Femcord/releases/latest"
+const ReleaseUrl = "https://api.github.com/repos/Divulgate/Femcord/releases/latest"
 const ReleaseUrlFallback = "https://api.github.com/repos/Equicord/Equicord/releases/latest"
 const InstallerReleaseUrl = "https://api.github.com/repos/pastelrbx/Axolotl/releases/latest"
 const InstallerReleaseUrlFallback = "https://api.github.com/repos/Equicord/Equilotl/releases/latest"
