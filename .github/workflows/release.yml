@@ -144,6 +144,8 @@ jobs:
           mv Axolotl Axolotl.app/Contents/MacOS/Axolotl
           cp macos/icon.icns Axolotl.app/Contents/Resources/icon.icns
 
+          codesign --force --deep --sign - Axolotl.app
+
       # No Apple signing / notarization (Gatekeeper warnings expected)
       - name: Create final zip
         run: zip -r ${{ matrix.zip_name }} Axolotl.app
