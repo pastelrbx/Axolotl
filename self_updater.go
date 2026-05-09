@@ -7,6 +7,7 @@
 package main
 
 import (
+	"equilotl/buildinfo"
 	"errors"
 	"fmt"
 	"io"
@@ -15,7 +16,6 @@ import (
 	"path"
 	"runtime"
 	"time"
-	"vencord/buildinfo"
 )
 
 var IsSelfOutdated = false
@@ -52,7 +52,14 @@ func GetInstallerDownloadLink() string {
 		filename := Ternary(buildinfo.UiType == buildinfo.UiTypeCli, "AxolotlCli.exe", "Axolotl.exe")
 		return BaseUrl + filename
 	case "darwin":
-		return BaseUrl + "Axolotl.MacOS.zip"
+		switch runtime.GOARCH {
+		case "amd64":
+			return BaseUrl + "Axolotl-darwin-x64.zip"
+		case "arm64":
+			return BaseUrl + "Axolotl-darwin-arm64.zip"
+		default:
+			return ""
+		}
 	case "linux":
 		return BaseUrl + "AxolotlCli-linux"
 	default:

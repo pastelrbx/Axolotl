@@ -33,10 +33,10 @@ func init() {
 	}
 	if sudoUser != "" {
 		if sudoUser == "root" {
-			panic("Axolotl must not be run as the root user. Please rerun as normal user. Use sudo or doas to run as root.")
+			panic("Equilotl must not be run as the root user. Please rerun as normal user. Use sudo or doas to run as root.")
 		}
 
-		Log.Debug("Axolotl was run with root privileges, actual user is", sudoUser)
+		Log.Debug("Equilotl was run with root privileges, actual user is", sudoUser)
 		Log.Debug("Looking up HOME of", sudoUser)
 
 		u, err := user.Lookup(sudoUser)
@@ -47,7 +47,7 @@ func init() {
 			_ = os.Setenv("HOME", u.HomeDir)
 		}
 	} else if os.Getuid() == 0 {
-		panic("Axolotl was run as root but neither SUDO_USER nor DOAS_USER are set. Please rerun me as a normal user, with sudo/doas, or manually set SUDO_USER to your username")
+		panic("Equilotl was run as root but neither SUDO_USER nor DOAS_USER are set. Please rerun me as a normal user, with sudo/doas, or manually set SUDO_USER to your username")
 	}
 	Home = os.Getenv("HOME")
 
@@ -62,6 +62,49 @@ func init() {
 		path.Join(Home, ".dvm"),
 		"/var/lib/flatpak/app",
 		path.Join(Home, "/.local/share/flatpak/app"),
+	}
+}
+
+func ParseDiscordNew(p, branch string, isFlatpak bool) *DiscordInstall {
+	entries, err := os.ReadDir(p)
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			Log.Warn("Error during readdir "+p+":", err)
+		}
+		return nil
+	}
+
+	isPatched := false
+	appPath := ""
+	for _, dir := range entries {
+		if dir.IsDir() && strings.HasPrefix(dir.Name(), "app-") {
+			resources := path.Join(p, dir.Name(), "resources")
+			if !ExistsFile(resources) {
+				continue
+			}
+			app := path.Join(resources, "app")
+			if app > appPath {
+				appPath = app
+				isPatched = ExistsFile(path.Join(resources, "_app.asar"))
+			}
+		}
+	}
+
+	if appPath == "" {
+		return nil
+	}
+
+	if branch == "" {
+		branch = GetBranch(p)
+	}
+
+	return &DiscordInstall{
+		path:             p,
+		branch:           branch,
+		appPath:          appPath,
+		isPatched:        isPatched,
+		isFlatpak:        isFlatpak,
+		isSystemElectron: false,
 	}
 }
 
@@ -83,13 +126,12 @@ func ParseDiscord(p, _ string) *DiscordInstall {
 
 	isPatched, isSystemElectron := false, false
 
-	if ExistsFile(resources) { // normal install
+	if ExistsFile(app) { // normal install
 		isPatched = ExistsFile(path.Join(resources, "_app.asar"))
 	} else if ExistsFile(path.Join(p, "app.asar")) { // System electron doesn't have resources folder
 		isSystemElectron = true
 		isPatched = ExistsFile(path.Join(p, "_app.asar.unpacked"))
 	} else {
-		Log.Warn("Tried to parse invalid Location:", p)
 		return nil
 	}
 
@@ -125,6 +167,28 @@ func FindDiscords() []any {
 				Log.Debug("Found Discord install at ", discordDir)
 				discords = append(discords, discord)
 			}
+		}
+	}
+
+	for _, name := range []string{"discord", "discordcanary", "discordptb"} {
+		discordDir := path.Join(Home, ".config", name)
+		if !ExistsFile(discordDir) {
+			continue
+		}
+		if discord := ParseDiscordNew(discordDir, GetBranch(name), false); discord != nil {
+			Log.Debug("Found Discord install at ", discordDir)
+			discords = append(discords, discord)
+		}
+	}
+
+	for _, name := range []string{"Discord", "DiscordCanary", "DiscordPTB"} {
+		discordDir := path.Join(Home, ".var/app", "com.discordapp."+name, "config/discord")
+		if !ExistsFile(discordDir) {
+			continue
+		}
+		if discord := ParseDiscordNew(discordDir, GetBranch(name), true); discord != nil {
+			Log.Debug("Found Discord install at ", discordDir)
+			discords = append(discords, discord)
 		}
 	}
 

@@ -1,4 +1,6 @@
 axolotl
+vencord
 *.exe
 *.syso
 *.old
+vendor
