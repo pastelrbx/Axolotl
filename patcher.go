@@ -29,7 +29,7 @@ func init() {
 		BaseDir = path.Join(dir, "..", "EquicordData")
 	} else {
 		Log.Debug("Using UserConfig")
-		BaseDir = appdir.New("Equicord").UserConfig()
+		BaseDir = appdir.New("Femcord").UserConfig()
 	}
 	dir := os.Getenv("EQUICORD_DIRECTORY")
 	if dir == "" {
